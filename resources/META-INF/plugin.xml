@@ -41,7 +41,12 @@
                              implementationClass="ee.edio.garmin.psi.impl.manipulators.MonkeyStringManipulator"/>
     <lang.findUsagesProvider language="MonkeyC" implementationClass="ee.edio.garmin.MonkeyFindUsagesProvider"/>
     <lang.foldingBuilder language="MonkeyC" implementationClass="ee.edio.garmin.editor.MonkeyFoldingBuilder"/>
+
     <lang.formatter language="MonkeyC" implementationClass="ee.edio.garmin.formatter.MonkeyFormattingModelBuilder"/>
+    <codeStyleSettingsProvider implementation="ee.edio.garmin.formatter.settings.MonkeyCodeStyleSettingsProvider"/>
+    <langCodeStyleSettingsProvider
+        implementation="ee.edio.garmin.formatter.settings.MonkeyLanguageCodeStyleSettingsProvider"/>
+
 
     <lang.parserDefinition language="MonkeyC" implementationClass="ee.edio.garmin.MonkeyParserDefinition"/>
     <lang.psiStructureViewFactory language="MonkeyC"
