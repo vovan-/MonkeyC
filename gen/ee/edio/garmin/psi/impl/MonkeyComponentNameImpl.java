@@ -1,14 +1,12 @@
 // This is a generated file. Not intended for manual editing.
 package ee.edio.garmin.psi.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
-import static ee.edio.garmin.psi.MonkeyTypes.*;
-import ee.edio.garmin.psi.*;
+import ee.edio.garmin.psi.MonkeyComponentName;
+import ee.edio.garmin.psi.MonkeyId;
+import ee.edio.garmin.psi.MonkeyVisitor;
+import org.jetbrains.annotations.NotNull;
 
 public class MonkeyComponentNameImpl extends MonkeyNamedElementImpl implements MonkeyComponentName {
 
@@ -17,7 +15,7 @@ public class MonkeyComponentNameImpl extends MonkeyNamedElementImpl implements M
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
-    if (visitor instanceof MonkeyVisitor) ((MonkeyVisitor)visitor).visitComponentName(this);
+    if (visitor instanceof MonkeyVisitor) ((MonkeyVisitor) visitor).visitComponentName(this);
     else super.accept(visitor);
   }
 
@@ -25,6 +23,11 @@ public class MonkeyComponentNameImpl extends MonkeyNamedElementImpl implements M
   @NotNull
   public MonkeyId getId() {
     return findNotNullChildByClass(MonkeyId.class);
+  }
+
+  @Override
+  public String toString() {
+    return getId().getParent().getNode().getElementType().toString();
   }
 
 }

@@ -7,17 +7,17 @@ import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.UnfairTextRange;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.resolve.ResolveCache;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.containers.ContainerUtil;
-import ee.edio.garmin.MonkeyUtil;
+import ee.edio.garmin.lang.resolve.MonkeyResolver;
 import ee.edio.garmin.psi.MonkeyId;
 import ee.edio.garmin.psi.MonkeyReference;
 import ee.edio.garmin.util.MonkeyElementGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MonkeyReferenceImpl extends MonkeyExpressionImpl implements MonkeyReference, PsiPolyVariantReference {
@@ -81,7 +81,7 @@ public class MonkeyReferenceImpl extends MonkeyExpressionImpl implements MonkeyR
 
 
   private MonkeyReference[] findReferences() {
-    return PsiTreeUtil.getChildrenOfType(this.getParent(), MonkeyReference.class);
+    return PsiTreeUtil.getChildrenOfType(this, MonkeyReference.class);
   }
 
   @Override
@@ -91,8 +91,9 @@ public class MonkeyReferenceImpl extends MonkeyExpressionImpl implements MonkeyR
     if (chain) {
       return false;
     }
-    return true;
-    //final PsiElement target = resolve();
+    final PsiElement target = resolve();
+
+    return target == element;
 /*    if (element.getParent() instanceof MonkeyClass &&
         target != null &&
         MonkeyComponentType.typeOf(target.getParent()) == MonkeyComponentType.CONSTRUCTOR) {
@@ -108,25 +109,20 @@ public class MonkeyReferenceImpl extends MonkeyExpressionImpl implements MonkeyR
 
   @Override
   public PsiElement resolve() {
-    ResolveResult[] resolveResults = multiResolve(false);
-    return resolveResults.length == 1 ? resolveResults[0].getElement() : null;
-/*    final ResolveResult[] resolveResults = multiResolve(true);
+    ResolveResult[] resolveResults = multiResolve(true);
     return resolveResults.length == 0 ||
         resolveResults.length > 1 ||
-        !resolveResults[0].isValidResult() ? null : resolveResults[0].getElement();*/
+        !resolveResults[0].isValidResult() ? null : resolveResults[0].getElement();
   }
 
   @NotNull
   @Override
   public ResolveResult[] multiResolve(boolean incompleteCode) {
     Project project = getProject();
-    final List<? extends PsiElement> properties = MonkeyUtil.findReferences(project, this);
-    List<ResolveResult> results = new ArrayList<>();
-    for (PsiElement property : properties) {
-      results.add(new PsiElementResolveResult(property));
-    }
-    return results.toArray(new ResolveResult[results.size()]);
+    final List<? extends PsiElement> references =
+        ResolveCache.getInstance(getProject()).resolveWithCaching(this, MonkeyResolver.INSTANCE, true, incompleteCode);
 
+    return toCandidateInfoArray(references);
 
 /*    final List<? extends PsiElement> elements = new ArrayList<>();
     *//*final List<? extends PsiElement> elements =

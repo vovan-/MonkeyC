@@ -4,21 +4,19 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.intellij.util.xml.DomElement;
 import com.intellij.util.xml.DomFileElement;
 import com.intellij.util.xml.DomManager;
-import ee.edio.garmin.psi.MonkeyFile;
-import ee.edio.garmin.psi.MonkeyNamedElement;
-import ee.edio.garmin.psi.MonkeyReference;
-import ee.edio.garmin.psi.MonkeyReferenceExpression;
+import ee.edio.garmin.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,22 +32,32 @@ public class MonkeyUtil {
     if (name == null) {
       return new ArrayList<>();
     }
-    List<MonkeyNamedElement> result = new ArrayList<>();
+    final List<MonkeyNamedElement> result = new ArrayList<>();
     Collection<VirtualFile> virtualFiles = FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME, MonkeyFileType.INSTANCE,
         GlobalSearchScope.allScope(project));
     for (VirtualFile virtualFile : virtualFiles) {
       MonkeyFile monkeyFile = (MonkeyFile) PsiManager.getInstance(project).findFile(virtualFile);
       if (monkeyFile != null) {
-        MonkeyNamedElement[] references = PsiTreeUtil.getChildrenOfType(monkeyFile.getFirstChild(), MonkeyNamedElement.class);
-        if (references != null) {
-          for (MonkeyNamedElement reference : references) {
-            if (name.equals(reference.getName())) {
-              result.add(reference);
-            }
-          }
-
-          //Collections.addAll(result, references);
+        final PsiElement firstChild = monkeyFile.getFirstChild();
+        if (firstChild == null) {
+          continue;
         }
+        firstChild.acceptChildren(new PsiElementVisitor() {
+          @Override
+          public void visitElement(PsiElement element) {
+            if (element instanceof MonkeyComponent) {
+              System.out.println("okei");
+            }
+            if (element instanceof MonkeyNamedElement) {
+              MonkeyNamedElement declaration = (MonkeyNamedElement) element;
+              final String decName = declaration.getName();
+              if (decName != null && decName.equals(name)) {
+                result.add(declaration);
+              }
+            }
+            super.visitElement(element);
+          }
+        });
       }
     }
     return result;

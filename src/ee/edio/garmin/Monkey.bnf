@@ -172,6 +172,7 @@ functionDeclaration ::= modifiers FUNCTION componentName formalParameters (THROW
   pin=3
   mixin="ee.edio.garmin.psi.impl.AbstractMonkeyComponentImpl"
   implements="ee.edio.garmin.psi.MonkeyComponent"
+//  stubClass="ee.edio.garmin.stubs.MonkeyFunctionDeclarationStub"
   //methods=[getKey getValue setName getNameIdentifier]
 }
 
